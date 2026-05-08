@@ -1,6 +1,7 @@
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Mic, Languages, Zap, Globe } from 'lucide-react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import { TelegramLoginButton } from '@/components/auth/TelegramLoginButton';
 import { useTelegramLogin } from '@/hooks/useAuth';
 import { useAuthStore } from '@/store/useAuthStore';
@@ -11,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import type { Lang } from '@/types';
+import type { Lang, TelegramAuthData } from '@/types';
 
 const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME ?? 'VoiceCashlyBot';
 const LANGS: { code: Lang; label: string }[] = [
@@ -24,6 +25,32 @@ export default function LoginPage() {
   const { t, i18n } = useTranslation();
   const login = useTelegramLogin();
   const { isAuthenticated } = useAuthStore();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const handledRef = useRef(false);
+
+  const authUrl = `${window.location.origin}/login`;
+
+  useEffect(() => {
+    if (handledRef.current) return;
+    const id = searchParams.get('id');
+    const hash = searchParams.get('hash');
+    const authDate = searchParams.get('auth_date');
+    const firstName = searchParams.get('first_name');
+    if (!id || !hash || !authDate || !firstName) return;
+
+    handledRef.current = true;
+    const payload: TelegramAuthData = {
+      id: Number(id),
+      first_name: firstName,
+      last_name: searchParams.get('last_name') ?? undefined,
+      username: searchParams.get('username') ?? undefined,
+      photo_url: searchParams.get('photo_url') ?? undefined,
+      auth_date: Number(authDate),
+      hash,
+    };
+    login.mutate(payload);
+    setSearchParams({}, { replace: true });
+  }, [searchParams, setSearchParams, login]);
 
   if (isAuthenticated) return <Navigate to="/" replace />;
 
@@ -65,7 +92,7 @@ export default function LoginPage() {
           {login.isPending ? (
             <p className="text-sm text-muted-foreground">{t('login.logging_in')}</p>
           ) : (
-            <TelegramLoginButton botUsername={BOT_USERNAME} onAuth={login.mutate} />
+            <TelegramLoginButton botUsername={BOT_USERNAME} authUrl={authUrl} />
           )}
         </div>
 
