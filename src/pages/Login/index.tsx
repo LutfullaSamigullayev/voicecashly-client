@@ -15,6 +15,7 @@ import {
 import type { Lang, TelegramAuthData } from '@/types';
 
 const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME ?? 'VoiceCashlyBot';
+const BOT_ID = import.meta.env.VITE_BOT_ID ?? '';
 const LANGS: { code: Lang; label: string }[] = [
   { code: 'uz', label: "O'zbekcha" },
   { code: 'ru', label: 'Русский' },
@@ -91,8 +92,14 @@ export default function LoginPage() {
         <div className="rounded-lg border border-border bg-card p-6">
           {login.isPending ? (
             <p className="text-sm text-muted-foreground">{t('login.logging_in')}</p>
+          ) : BOT_ID ? (
+            <TelegramLoginButton
+              botId={BOT_ID}
+              authUrl={authUrl}
+              label={t('login.telegram_button', { defaultValue: 'Log in with Telegram' })}
+            />
           ) : (
-            <TelegramLoginButton botUsername={BOT_USERNAME} authUrl={authUrl} />
+            <p className="text-sm text-destructive">VITE_BOT_ID env var is missing</p>
           )}
         </div>
 
