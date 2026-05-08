@@ -7,7 +7,7 @@ interface CurrencyAmountProps {
   amount: number | string;
   currency?: Currency;
   className?: string;
-  sign?: '+' | '-';
+  sign?: '+' | '-' | '−';
 }
 
 export function CurrencyAmount({ amount, currency = 'UZS', className, sign }: CurrencyAmountProps) {

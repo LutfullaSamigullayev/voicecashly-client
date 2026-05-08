@@ -1,4 +1,4 @@
-import { format, formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow, type Locale } from 'date-fns';
 import { uz, ru, enUS } from 'date-fns/locale';
 import type { Currency, Lang } from '@/types';
 

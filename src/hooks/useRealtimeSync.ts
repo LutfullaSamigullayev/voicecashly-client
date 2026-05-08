@@ -12,8 +12,9 @@ export function useRealtimeSync() {
 
   useEffect(() => {
     if (!supabase || !activeWorkspaceId) return;
+    const client = supabase;
 
-    const channel = supabase
+    const channel = client
       .channel(`ws-${activeWorkspaceId}`)
       .on(
         'postgres_changes',
@@ -47,7 +48,7 @@ export function useRealtimeSync() {
       .subscribe();
 
     return () => {
-      void supabase.removeChannel(channel);
+      void client.removeChannel(channel);
     };
   }, [activeWorkspaceId, queryClient, t]);
 }
