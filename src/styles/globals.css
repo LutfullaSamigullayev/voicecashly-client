@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 17% 98%;
+    --foreground: 220 15% 13%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 13%;
+    --primary: 165 76% 24%;
+    --primary-hover: 167 78% 18%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 14% 96%;
+    --secondary-foreground: 220 15% 13%;
+    --muted: 220 9% 46%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 210 14% 96%;
+    --accent-foreground: 220 15% 13%;
+    --destructive: 0 58% 41%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 165 76% 24%;
+
+    --income: 161 70% 37%;
+    --income-bg: 158 56% 92%;
+    --expense: 16 67% 51%;
+    --expense-bg: 18 64% 94%;
+    --warning: 35 92% 72%;
+    --danger: 0 58% 41%;
+  }
+
+  .dark {
+    --background: 220 15% 9%;
+    --foreground: 210 14% 96%;
+    --card: 220 15% 12%;
+    --card-foreground: 210 14% 96%;
+    --popover: 220 15% 12%;
+    --popover-foreground: 210 14% 96%;
+    --primary: 165 60% 40%;
+    --primary-hover: 167 65% 34%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 15% 16%;
+    --secondary-foreground: 210 14% 96%;
+    --muted: 220 9% 60%;
+    --muted-foreground: 220 9% 60%;
+    --accent: 220 15% 16%;
+    --accent-foreground: 210 14% 96%;
+    --destructive: 0 60% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 15% 20%;
+    --input: 220 15% 20%;
+    --ring: 165 60% 40%;
+
+    --income: 161 60% 45%;
+    --income-bg: 161 50% 16%;
+    --expense: 16 65% 55%;
+    --expense-bg: 18 50% 18%;
+    --warning: 35 80% 60%;
+    --danger: 0 65% 50%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum';
+  }
+  ::selection {
+    @apply bg-primary/20;
+  }
+}
+
+@layer components {
+  .card-soft {
+    @apply rounded-lg border border-border bg-card p-4;
+  }
+  .skeleton {
+    @apply animate-pulse rounded-md bg-muted/20;
+  }
+}
