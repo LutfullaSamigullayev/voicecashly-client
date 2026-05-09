@@ -1,10 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Mic, Languages, Zap, Globe } from 'lucide-react';
-import { Navigate, useSearchParams } from 'react-router-dom';
-import { TelegramLoginButton } from '@/components/auth/TelegramLoginButton';
-import { useTelegramLogin } from '@/hooks/useAuth';
+import { Mic, Languages, Zap, Globe, Send, Loader2 } from 'lucide-react';
+import { Navigate, useNavigate } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
+import { authService } from '@/services/auth.service';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useWorkspaceStore } from '@/store/useWorkspaceStore';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -12,10 +14,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import type { Lang, TelegramAuthData } from '@/types';
+import type { Lang } from '@/types';
 
 const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME ?? 'VoiceCashlyBot';
-const BOT_ID = import.meta.env.VITE_BOT_ID ?? '';
 const LANGS: { code: Lang; label: string }[] = [
   { code: 'uz', label: "O'zbekcha" },
   { code: 'ru', label: 'Русский' },
@@ -24,36 +25,54 @@ const LANGS: { code: Lang; label: string }[] = [
 
 export default function LoginPage() {
   const { t, i18n } = useTranslation();
-  const login = useTelegramLogin();
-  const { isAuthenticated } = useAuthStore();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const handledRef = useRef(false);
+  const { isAuthenticated, login } = useAuthStore();
+  const { setActive } = useWorkspaceStore();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
-  const authUrl = `${window.location.origin}/login`;
+  const [token, setToken] = useState<string | null>(null);
+
+  const start = useMutation({
+    mutationFn: () => authService.botAuthStart(),
+    onSuccess: (data) => {
+      setToken(data.token);
+      window.open(data.deepLink, '_blank', 'noopener,noreferrer');
+    },
+    onError: () => {
+      toast.error(t('toasts.server_error'));
+    },
+  });
+
+  const poll = useQuery({
+    queryKey: ['bot-auth-check', token],
+    queryFn: () => authService.botAuthCheck(token!),
+    enabled: !!token,
+    refetchInterval: (q) => {
+      const data = q.state.data;
+      if (!data || data.status === 'pending') return 2000;
+      return false;
+    },
+  });
 
   useEffect(() => {
-    if (handledRef.current) return;
-    const id = searchParams.get('id');
-    const hash = searchParams.get('hash');
-    const authDate = searchParams.get('auth_date');
-    const firstName = searchParams.get('first_name');
-    if (!id || !hash || !authDate || !firstName) return;
+    const data = poll.data;
+    if (!data) return;
 
-    handledRef.current = true;
-    const payload: TelegramAuthData = {
-      id: Number(id),
-      first_name: firstName,
-      last_name: searchParams.get('last_name') ?? undefined,
-      username: searchParams.get('username') ?? undefined,
-      photo_url: searchParams.get('photo_url') ?? undefined,
-      auth_date: Number(authDate),
-      hash,
-    };
-    login.mutate(payload);
-    setSearchParams({}, { replace: true });
-  }, [searchParams, setSearchParams, login]);
+    if (data.status === 'confirmed' && data.jwt && data.user) {
+      login(data.jwt, data.user);
+      const ws = data.user.workspaces?.[0];
+      if (ws) setActive(ws.workspaceId, ws.role);
+      queryClient.invalidateQueries();
+      navigate('/');
+    } else if (data.status === 'expired') {
+      toast.error(t('login.expired'));
+      setToken(null);
+    }
+  }, [poll.data, login, setActive, queryClient, navigate, t]);
 
   if (isAuthenticated) return <Navigate to="/" replace />;
+
+  const isWaiting = !!token && poll.data?.status === 'pending';
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-background p-4">
@@ -90,16 +109,34 @@ export default function LoginPage() {
         </div>
 
         <div className="rounded-lg border border-border bg-card p-6">
-          {login.isPending ? (
-            <p className="text-sm text-muted-foreground">{t('login.logging_in')}</p>
-          ) : BOT_ID ? (
-            <TelegramLoginButton
-              botId={BOT_ID}
-              authUrl={authUrl}
-              label={t('login.telegram_button', { defaultValue: 'Log in with Telegram' })}
-            />
+          {isWaiting ? (
+            <div className="flex flex-col items-center gap-3">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <p className="text-sm font-medium">{t('login.waiting_confirm')}</p>
+              <p className="text-xs text-muted-foreground">{t('login.open_bot_hint')}</p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setToken(null)}
+                className="mt-2"
+              >
+                {t('login.cancel')}
+              </Button>
+            </div>
           ) : (
-            <p className="text-sm text-destructive">VITE_BOT_ID env var is missing</p>
+            <button
+              type="button"
+              onClick={() => start.mutate()}
+              disabled={start.isPending}
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[#54a9eb] px-5 text-sm font-medium text-white shadow-sm transition hover:bg-[#3d97e0] disabled:opacity-60"
+            >
+              {start.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+              {t('login.bot_login_button')}
+            </button>
           )}
         </div>
 
