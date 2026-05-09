@@ -12,12 +12,21 @@ if (useUiStore.getState().theme === 'dark') {
   document.documentElement.classList.add('dark');
 }
 
+const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
+void fetch(apiBase, { method: 'GET', mode: 'no-cors' }).catch(() => {});
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
-      staleTime: 30_000,
+      retry: (failureCount, error: unknown) => {
+        const status = (error as { response?: { status?: number } })?.response?.status;
+        if (status && status >= 400 && status < 500) return false;
+        return failureCount < 2;
+      },
+      staleTime: 60_000,
+      gcTime: 5 * 60_000,
       refetchOnWindowFocus: false,
+      refetchOnReconnect: 'always',
     },
   },
 });

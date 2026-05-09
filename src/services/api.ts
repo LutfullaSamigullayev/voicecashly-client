@@ -6,9 +6,11 @@ import i18n from '@/i18n';
 
 const baseURL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 
+export const AUTH_LOGOUT_EVENT = 'voicecashly:auth-logout';
+
 export const api = axios.create({
   baseURL,
-  timeout: 15000,
+  timeout: 60000,
 });
 
 api.interceptors.request.use((config) => {
@@ -32,10 +34,11 @@ api.interceptors.response.use(
     }
     const status = error.response.status;
     if (status === 401) {
+      const wasAuthenticated = useAuthStore.getState().isAuthenticated;
       useAuthStore.getState().logout();
       useWorkspaceStore.getState().reset();
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+      if (wasAuthenticated && window.location.pathname !== '/login') {
+        window.dispatchEvent(new CustomEvent(AUTH_LOGOUT_EVENT));
       }
     } else if (status === 403) {
       toast.error(i18n.t('toasts.no_permission'));
