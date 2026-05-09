@@ -11,7 +11,6 @@ export function TelegramLoginButton({ botId, authUrl, label }: TelegramLoginButt
       origin: window.location.origin,
       return_to: authUrl,
       request_access: 'write',
-      embed: '0',
     });
     window.location.href = `https://oauth.telegram.org/auth?${params.toString()}`;
   };
