@@ -22,13 +22,17 @@ export function formatMoney(amount: number | string, currency: Currency = 'UZS',
   return `${formatted} so'm`;
 }
 
-export function formatDate(date: Date | string, pattern = 'd MMM, HH:mm', lang: Lang = 'uz'): string {
+export function formatDate(date: Date | string | null | undefined, pattern = 'd MMM, HH:mm', lang: Lang = 'uz'): string {
+  if (!date) return '—';
   const d = typeof date === 'string' ? new Date(date) : date;
+  if (Number.isNaN(d.getTime())) return '—';
   return format(d, pattern, { locale: localeMap[lang] });
 }
 
-export function formatRelative(date: Date | string, lang: Lang = 'uz'): string {
+export function formatRelative(date: Date | string | null | undefined, lang: Lang = 'uz'): string {
+  if (!date) return '—';
   const d = typeof date === 'string' ? new Date(date) : date;
+  if (Number.isNaN(d.getTime())) return '—';
   return formatDistanceToNow(d, { addSuffix: true, locale: localeMap[lang] });
 }
 
