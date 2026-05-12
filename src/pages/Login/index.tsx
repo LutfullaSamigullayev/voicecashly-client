@@ -60,7 +60,11 @@ export default function LoginPage() {
 
     if (data.status === 'confirmed' && data.jwt && data.user) {
       login(data.jwt, data.user);
-      const ws = data.user.workspaces?.[0];
+      const memberships = data.user.workspaces ?? [];
+      const preferred = data.activeWorkspaceId
+        ? memberships.find((m) => m.workspaceId === data.activeWorkspaceId)
+        : undefined;
+      const ws = preferred ?? memberships[0];
       if (ws) setActive(ws.workspaceId, ws.role);
       queryClient.invalidateQueries();
       navigate('/');
