@@ -11,6 +11,7 @@ export interface BotAuthCheck {
   status: 'pending' | 'confirmed' | 'expired';
   jwt?: string;
   user?: User;
+  activeWorkspaceId?: number;
 }
 
 export const authService = {
