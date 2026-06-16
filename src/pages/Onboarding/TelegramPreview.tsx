@@ -10,6 +10,7 @@ const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME ?? 'VoiceCashlyBot';
  * on purpose; they don't follow our theme.
  */
 export function TelegramPreview() {
+  const { t } = useTranslation();
 
   return (
     <div
