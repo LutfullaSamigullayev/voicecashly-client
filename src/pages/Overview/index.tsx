@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -43,7 +43,7 @@ export default function OverviewPage() {
   const [period, setPeriod] = useState<Period>('month');
   const active = useActiveWorkspace();
   const wsId = active?.workspaceId ?? null;
-  const { from, to } = periodRange(period);
+  const { from, to } = useMemo(() => periodRange(period), [period]);
 
   const { data: summary, isLoading: sumLoading } = useSummary(wsId, from, to);
   const { data: txList, isLoading: txLoading } = useTransactions(
