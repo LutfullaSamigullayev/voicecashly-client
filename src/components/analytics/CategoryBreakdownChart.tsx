@@ -6,17 +6,12 @@ import type { CategoryBreakdownItem, Lang } from '@/types';
 export function CategoryBreakdownChart({ data }: { data: CategoryBreakdownItem[] }) {
   const { t, i18n } = useTranslation();
   const lang = (i18n.language?.slice(0, 2) ?? 'uz') as Lang;
-  const top5 = [...data].sort((a, b) => b.total - a.total).slice(0, 5);
+  const top5 = [...data].sort((a, b) => b.amount - a.amount).slice(0, 5);
 
   const chartData = top5.map((d) => ({
-    name:
-      lang === 'uz'
-        ? d.category.nameUz
-        : lang === 'ru'
-          ? d.category.nameRu
-          : d.category.nameEn,
-    value: d.total,
-    color: d.category.color,
+    name: lang === 'uz' ? d.nameUz : lang === 'ru' ? d.nameRu : d.nameEn,
+    value: d.amount,
+    color: d.color,
   }));
 
   return (
