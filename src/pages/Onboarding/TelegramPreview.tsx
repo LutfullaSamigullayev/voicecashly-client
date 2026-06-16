@@ -2,6 +2,8 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Check, ChevronLeft, MoreVertical, Plus, Mic, Play } from 'lucide-react';
 
+const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME ?? 'VoiceCashlyBot';
+
 /**
  * Telegram chat preview. Decorative — illustrates what a confirmed voice
  * transaction looks like inside the bot. Telegram brand colors are hard-coded
