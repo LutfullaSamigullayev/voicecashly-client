@@ -42,5 +42,6 @@ export function formatPercent(n: number): string {
 }
 
 export function getMonthName(month: number, lang: Lang = 'uz'): string {
+  if (!Number.isInteger(month) || month < 1 || month > 12) return '—';
   return format(new Date(2000, month - 1, 1), 'MMMM', { locale: localeMap[lang] });
 }
