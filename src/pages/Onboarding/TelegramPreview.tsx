@@ -36,6 +36,12 @@ export function TelegramPreview() {
         <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[32px] bg-[#17212B]">
           {/* notch */}
           <div className="absolute left-1/2 top-2 z-10 h-[22px] w-[100px] -translate-x-1/2 rounded-full bg-black" />
+
+          {/* status bar */}
+          <div className="flex justify-between px-7 pb-1 pt-3 text-xs font-semibold text-white">
+            <span>14:22</span>
+            <span className="ml-12 tracking-widest">●●●●●</span>
+          </div>
         </div>
       </div>
 
