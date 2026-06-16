@@ -20,6 +20,16 @@ export function TelegramPreview() {
           'linear-gradient(135deg, hsl(var(--primary-hover)), hsl(var(--primary)))',
       }}
     >
+      {/* dot grid */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 1px 1px, #fff 1px, transparent 0)',
+          backgroundSize: '20px 20px',
+        }}
+      />
 
     </div>
   );
