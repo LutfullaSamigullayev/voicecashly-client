@@ -31,6 +31,14 @@ export function TelegramPreview() {
         }}
       />
 
+      {/* phone */}
+      <div className="relative z-10 h-[640px] w-[320px] rounded-[40px] bg-black p-2 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5),0_30px_60px_-30px_rgba(0,0,0,0.4),inset_0_0_0_2px_rgba(255,255,255,0.06)]">
+        <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[32px] bg-[#17212B]">
+          {/* notch */}
+          <div className="absolute left-1/2 top-2 z-10 h-[22px] w-[100px] -translate-x-1/2 rounded-full bg-black" />
+        </div>
+      </div>
+
     </div>
   );
 }
