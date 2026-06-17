@@ -115,6 +115,14 @@ export function TelegramPreview() {
               </div>
             </div>
           </div>
+
+          {/* input bar */}
+          <div className="flex items-center gap-2 bg-[#212D3B] px-3 py-2.5">
+            <Plus className="h-5 w-5 text-[#7E8A99]" />
+            <div className="flex-1 rounded-full bg-[#182533] px-3.5 py-1.5 text-[13px] text-[#7E8A99]">
+              {t('onboarding.chat_input_placeholder')}
+            </div>
+          </div>
         </div>
       </div>
 
