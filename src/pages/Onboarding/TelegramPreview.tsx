@@ -122,6 +122,12 @@ export function TelegramPreview() {
             <div className="flex-1 rounded-full bg-[#182533] px-3.5 py-1.5 text-[13px] text-[#7E8A99]">
               {t('onboarding.chat_input_placeholder')}
             </div>
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-[#54a9eb]"
+              style={{ animation: 'tg-pulse 2s infinite' }}
+            >
+              <Mic className="h-[18px] w-[18px] text-white" />
+            </div>
           </div>
         </div>
       </div>
