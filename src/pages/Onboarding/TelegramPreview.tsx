@@ -42,6 +42,16 @@ export function TelegramPreview() {
             <span>14:22</span>
             <span className="ml-12 tracking-widest">●●●●●</span>
           </div>
+
+          {/* tg header */}
+          <div className="flex items-center gap-3 border-b border-white/5 bg-[#212D3B] px-4 py-2.5">
+            <ChevronLeft className="h-5 w-5 text-[#54a9eb]" />
+            <BotAvatar />
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-white">VoiceCashly</div>
+            </div>
+            <MoreVertical className="h-5 w-5 text-white" />
+          </div>
         </div>
       </div>
 
