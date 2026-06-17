@@ -136,6 +136,18 @@ export function TelegramPreview() {
       <div className="absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/60">
         @{BOT_USERNAME}
       </div>
+
+      <style>{`
+        @keyframes tg-dot {
+          0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+          30% { transform: translateY(-3px); opacity: 1; }
+        }
+        @keyframes tg-pulse {
+          0% { box-shadow: 0 0 0 0 rgba(84,169,235,0.5); }
+          70% { box-shadow: 0 0 0 14px rgba(84,169,235,0); }
+          100% { box-shadow: 0 0 0 0 rgba(84,169,235,0); }
+        }
+      `}</style>
     </div>
   );
 }
