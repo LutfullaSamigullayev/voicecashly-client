@@ -91,6 +91,13 @@ export function TelegramPreview() {
             <TgBubble side="out" time="14:22" status>
               {t('onboarding.chat_user_msg')}
             </TgBubble>
+
+            <TgBubble side="in" time="14:22">
+              ✓{' '}
+              {t('onboarding.chat_saved_short', {
+                amount: '80 000',
+                cat: t('onboarding.chat_cat_food'),
+              })}
           </div>
         </div>
       </div>
