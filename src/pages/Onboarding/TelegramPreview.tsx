@@ -184,6 +184,15 @@ function TgBubble({
   const isOut = side === 'out';
   return (
     <div className={`mb-1.5 flex ${isOut ? 'justify-end' : 'justify-start'}`}>
+      <div
+        className={`relative max-w-[78%] rounded-[14px] px-3 py-2 text-sm leading-snug text-white ${
+          isOut
+            ? 'rounded-br-[4px] bg-[#2B5278]'
+            : 'rounded-bl-[4px] bg-[#182533]'
+        }`}
+      >
+        {children}
+      </div>
     </div>
   );
 }
