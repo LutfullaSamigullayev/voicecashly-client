@@ -67,6 +67,10 @@ export function TelegramPreview() {
             <div className="mb-4 text-center text-[11px] text-[#7E8A99]">
               {t('onboarding.chat_today')}
             </div>
+
+            <TgBubble side="in" time="14:20">
+              {t('onboarding.chat_greeting')}
+            </TgBubble>
           </div>
         </div>
       </div>
