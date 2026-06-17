@@ -49,6 +49,9 @@ export function TelegramPreview() {
             <BotAvatar />
             <div className="flex-1">
               <div className="text-sm font-semibold text-white">VoiceCashly</div>
+              <div className="text-[11px] text-[#7E8A99]">
+                {t('onboarding.bot_subtitle')}
+              </div>
             </div>
             <MoreVertical className="h-5 w-5 text-white" />
           </div>
