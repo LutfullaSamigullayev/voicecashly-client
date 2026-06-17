@@ -151,3 +151,21 @@ export function TelegramPreview() {
     </div>
   );
 }
+
+function BotAvatar() {
+  return (
+    <svg width="36" height="36" viewBox="0 0 64 64" fill="none">
+      <circle cx="32" cy="32" r="32" fill="hsl(var(--primary))" />
+      <path
+        d="M32 18a4 4 0 0 0-4 4v10a4 4 0 0 0 8 0V22a4 4 0 0 0-4-4z"
+        fill="#fff"
+      />
+      <path
+        d="M22 32a10 10 0 0 0 20 0M32 42v6M26 48h12"
+        stroke="#fff"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
