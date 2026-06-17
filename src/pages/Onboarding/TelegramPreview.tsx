@@ -55,6 +55,16 @@ export function TelegramPreview() {
             </div>
             <MoreVertical className="h-5 w-5 text-white" />
           </div>
+
+          {/* chat body */}
+          <div
+            className="flex-1 overflow-hidden px-3.5 py-5"
+            style={{
+              backgroundImage:
+                'radial-gradient(circle at 20% 30%, rgba(84,169,235,0.05) 0%, transparent 50%)',
+            }}
+          >
+          </div>
         </div>
       </div>
 
