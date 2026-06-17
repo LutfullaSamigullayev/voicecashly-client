@@ -194,6 +194,9 @@ function TgBubble({
         {children}
         <div className="mt-1 flex items-center justify-end gap-1 text-[11px] text-white/55">
           {time}
+          {status && (
+            <Check className="h-3.5 w-3.5" strokeWidth={2} color="#54a9eb" />
+          )}
         </div>
       </div>
     </div>
