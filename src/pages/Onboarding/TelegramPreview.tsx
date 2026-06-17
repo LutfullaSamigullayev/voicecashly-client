@@ -98,6 +98,22 @@ export function TelegramPreview() {
                 amount: '80 000',
                 cat: t('onboarding.chat_cat_food'),
               })}
+            </TgBubble>
+
+            {/* typing */}
+            <div className="mt-1 flex justify-start">
+              <div className="flex gap-1 rounded-[14px] rounded-bl-[4px] bg-[#182533] px-3.5 py-2.5">
+                {[0, 1, 2].map((i) => (
+                  <span
+                    key={i}
+                    className="h-1.5 w-1.5 rounded-full bg-[#7E8A99]"
+                    style={{
+                      animation: `tg-dot 1.2s ${i * 0.2}s infinite ease-in-out`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
