@@ -169,3 +169,20 @@ function BotAvatar() {
     </svg>
   );
 }
+
+function TgBubble({
+  side,
+  children,
+  time,
+  status,
+}: {
+  side: 'in' | 'out';
+  children: ReactNode;
+  time: string;
+  status?: boolean;
+}) {
+  return (
+    <div className={`mb-1.5 flex ${isOut ? 'justify-end' : 'justify-start'}`}>
+    </div>
+  );
+}
