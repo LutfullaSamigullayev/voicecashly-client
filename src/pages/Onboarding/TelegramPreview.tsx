@@ -64,6 +64,9 @@ export function TelegramPreview() {
                 'radial-gradient(circle at 20% 30%, rgba(84,169,235,0.05) 0%, transparent 50%)',
             }}
           >
+            <div className="mb-4 text-center text-[11px] text-[#7E8A99]">
+              {t('onboarding.chat_today')}
+            </div>
           </div>
         </div>
       </div>
