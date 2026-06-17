@@ -132,6 +132,10 @@ export function TelegramPreview() {
         </div>
       </div>
 
+      {/* footer caption */}
+      <div className="absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/60">
+        @{BOT_USERNAME}
+      </div>
     </div>
   );
 }
