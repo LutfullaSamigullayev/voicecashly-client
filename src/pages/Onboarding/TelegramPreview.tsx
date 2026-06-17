@@ -87,6 +87,10 @@ export function TelegramPreview() {
                 </div>
               </div>
             </TgBubble>
+
+            <TgBubble side="out" time="14:22" status>
+              {t('onboarding.chat_user_msg')}
+            </TgBubble>
           </div>
         </div>
       </div>
