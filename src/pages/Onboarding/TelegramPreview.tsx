@@ -192,6 +192,9 @@ function TgBubble({
         }`}
       >
         {children}
+        <div className="mt-1 flex items-center justify-end gap-1 text-[11px] text-white/55">
+          {time}
+        </div>
       </div>
     </div>
   );
