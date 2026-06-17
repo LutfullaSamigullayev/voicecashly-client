@@ -181,6 +181,7 @@ function TgBubble({
   time: string;
   status?: boolean;
 }) {
+  const isOut = side === 'out';
   return (
     <div className={`mb-1.5 flex ${isOut ? 'justify-end' : 'justify-start'}`}>
     </div>
