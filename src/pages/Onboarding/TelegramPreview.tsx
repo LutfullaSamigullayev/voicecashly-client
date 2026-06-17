@@ -73,6 +73,20 @@ export function TelegramPreview() {
             </TgBubble>
 
             <VoiceBubble />
+
+            <TgBubble side="in" time="14:22">
+              <div>✓ {t('onboarding.chat_saved')}</div>
+              <div className="mt-2 rounded-[10px] border-l-[3px] border-[#54a9eb] bg-white/[0.06] px-3 py-2.5 text-[13px]">
+                <div className="mb-0.5 text-[11px] uppercase tracking-wide text-[#9DB2C7]">
+                  {t('onboarding.chat_expense')}
+                </div>
+                <div className="text-base font-semibold">35 000 so'm</div>
+                <div className="mt-0.5 text-xs text-[#9DB2C7]">
+                  🚕 {t('onboarding.chat_cat_transport')} ·{' '}
+                  {t('onboarding.chat_today')}
+                </div>
+              </div>
+            </TgBubble>
           </div>
         </div>
       </div>
