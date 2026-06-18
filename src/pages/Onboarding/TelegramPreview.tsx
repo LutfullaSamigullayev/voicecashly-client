@@ -217,6 +217,23 @@ function VoiceBubble() {
         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white text-[#2B5278]">
           <Play className="h-3.5 w-3.5 fill-current" />
         </div>
+        <div className="flex h-6 flex-1 items-center gap-0.5">
+          {Array.from({ length: bars }).map((_, i) => {
+            const env = 0.4 + Math.sin((i / bars) * Math.PI) * 0.6;
+            const played = (i / bars) * 100 < progress;
+            return (
+              <span
+                key={i}
+                className="rounded-sm"
+                style={{
+                  width: 2.5,
+                  height: env * 22,
+                  background: played ? '#fff' : 'rgba(255,255,255,0.35)',
+                }}
+              />
+            );
+          })}
+        </div>
       </div>
     </div>
   );
