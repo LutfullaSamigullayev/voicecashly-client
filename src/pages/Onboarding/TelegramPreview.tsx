@@ -234,6 +234,13 @@ function VoiceBubble() {
             );
           })}
         </div>
+        <div className="flex flex-col items-end gap-0.5">
+          <span className="text-[11px] text-white/70">0:04</span>
+          <div className="flex items-center gap-0.5">
+            <span className="text-[11px] text-white/55">14:22</span>
+            <Check className="h-3 w-3" strokeWidth={2} color="#54a9eb" />
+          </div>
+        </div>
       </div>
     </div>
   );
