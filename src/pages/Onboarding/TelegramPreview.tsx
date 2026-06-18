@@ -214,6 +214,9 @@ function VoiceBubble() {
   return (
     <div className="mb-1.5 flex justify-end">
       <div className="flex min-w-[260px] items-center gap-2.5 rounded-[14px] rounded-br-[4px] bg-[#2B5278] px-3 py-2.5">
+        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white text-[#2B5278]">
+          <Play className="h-3.5 w-3.5 fill-current" />
+        </div>
       </div>
     </div>
   );
