@@ -204,6 +204,7 @@ function TgBubble({
 }
 
 function VoiceBubble() {
+  const [progress, setProgress] = useState(0);
 
   return (
     <div className="mb-1.5 flex justify-end">
