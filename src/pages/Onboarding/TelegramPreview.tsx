@@ -205,6 +205,10 @@ function TgBubble({
 
 function VoiceBubble() {
   const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setProgress((p) => (p + 0.5) % 100), 80);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <div className="mb-1.5 flex justify-end">
