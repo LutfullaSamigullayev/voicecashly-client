@@ -202,3 +202,13 @@ function TgBubble({
     </div>
   );
 }
+
+function VoiceBubble() {
+
+  return (
+    <div className="mb-1.5 flex justify-end">
+      <div className="flex min-w-[260px] items-center gap-2.5 rounded-[14px] rounded-br-[4px] bg-[#2B5278] px-3 py-2.5">
+      </div>
+    </div>
+  );
+}
