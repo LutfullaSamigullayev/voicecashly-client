@@ -209,6 +209,7 @@ function VoiceBubble() {
     const id = setInterval(() => setProgress((p) => (p + 0.5) % 100), 80);
     return () => clearInterval(id);
   }, []);
+  const bars = 36;
 
   return (
     <div className="mb-1.5 flex justify-end">
