@@ -100,8 +100,11 @@ src/
 │   ├── analytics/                       # MonthlyTrendChart, CategoryBreakdownChart, ComparisonCard, TopCategoriesList
 │   └── ui/                              # shadcn/ui primitives: button, input, label, badge, card, dialog, dropdown-menu, popover, select, tabs, skeleton, table
 └── pages/
-    ├── Login/index.tsx          # Telegram bot orqali login (poll-based)
-    ├── Onboarding/index.tsx     # Yangi user uchun bot'ga yo'naltirish
+    ├── Login/index.tsx                  # Telegram bot orqali login — "conversation split" dizayni
+    ├── Onboarding/
+    │   ├── index.tsx                    # Yangi user uchun bot'ga yo'naltirish (Login bilan bir xil layout)
+    │   ├── VoiceWaveform.tsx            # Animatsiyalangan ovoz to'lqini (envelope + dual-frequency wobble)
+    │   └── TelegramPreview.tsx          # Telefon ramkada Telegram chat preview (decorative)
     ├── Overview/index.tsx       # Bosh sahifa — metrics, charts, recent transactions, QuickAdd
     ├── Transactions/index.tsx   # CRUD + filtrlar + CSV export
     ├── Analytics/index.tsx      # Monthly trend + category breakdown
@@ -142,6 +145,14 @@ LoginPage
   → Keyingi pollda status='confirmed' kelganda:
        login(jwt, user) → setActive(user.workspaces[0].workspaceId, role) → navigate('/')
 ```
+
+**UI:** Login sahifasi "conversation split" dizayni ishlatadi (`/login` route):
+
+- Chap tomon (cream `bg-background`): brand row (logo + "Bot online" + til dropdown) → eyebrow + serif sarlavha (DM Serif Display, italic accent) → subtitle → animatsiyalangan voice waveform kartochkasi (`VoiceWaveform`) → 3-qadamli vertical timeline (qadam 1 aktiv → 2/3 todo; "Telegram'ni ochish" bosilgach: 1 done/yashil ✓, 2 aktiv) → CTA tugmalari
+- O'ng tomon (faqat `lg+`, teal gradient): telefon ramkada `TelegramPreview` — bot bilan suhbat preview (decorative)
+- `< lg`: faqat chap ustun ko'rinadi (telefon yashiriladi)
+
+`/onboarding` sahifasi xuddi shu layout'ni ishlatadi (auth'dan keyin workspace yo'q user uchun). Login va Onboarding `VoiceWaveform` va `TelegramPreview` komponentlarini bo'lishadi.
 
 > Eslatma: `loginWithTelegram(POST /auth/telegram)` Telegram Login Widget uchun mavjud, lekin **hozirgi UI ishlatmaydi**. `useTelegramLogin()` hook'i meros sifatida qolgan.
 
@@ -210,6 +221,58 @@ Interceptor xatolar:
 - Ranglar `hsl(var(--*))` CSS variables orqali (`styles/globals.css`)
 - Maxsus ranglar: `income`, `expense`, `warning`, `danger`
 
+### Design System (dizaynerlar uchun)
+
+**Brendlash:** VoiceCashly — ovozli moliyaviy boshqaruv. Brend rangi — chuqur teal (`hsl(165 76% 24%)`), accent cream/serif, light + dark mode.
+
+**Fontlar (`index.html`'da yuklanadi):**
+- **Inter** (400/500/600/700) — barcha UI matni (default sans-serif)
+- **DM Serif Display** (regular + italic) — faqat hero/marketing sarlavhalar uchun (Login, Onboarding). Tailwind class yo'q, inline `style={{ fontFamily: "'DM Serif Display', 'Source Serif 4', Georgia, serif" }}`
+
+**Color tokens** (`styles/globals.css`'da `hsl(H S% L%)` formatda, Tailwind `tailwind.config.ts`'da `hsl(var(--*))` orqali ulanadi). Light/dark variantlar har biri uchun belgilangan:
+
+| Token | Tailwind class | Tavsif |
+|-------|-----------------|--------|
+| `--background` | `bg-background` | Asosiy fon (cream light, chuqur dark) |
+| `--foreground` | `text-foreground` | Asosiy matn |
+| `--card` | `bg-card` | Kartochka foni |
+| `--card-foreground` | `text-card-foreground` | Kartochka matni |
+| `--primary` | `bg-primary` / `text-primary` | Brand teal — CTA, accent |
+| `--primary-hover` | (CSS var) | Gradient/hover uchun primary'ning to'q variant |
+| `--primary-foreground` | `text-primary-foreground` | Primary fonida matn |
+| `--secondary` | `bg-secondary` | Yumshoq cream surface — waveform card, soft bg |
+| `--muted` / `--muted-foreground` | `bg-muted` / `text-muted-foreground` | So'nik ikkilamchi matn/fon |
+| `--border` | `border-border` | Chiziqlar, divider'lar |
+| `--income` | `bg-income` / `text-income` | Daromad rangi (yashil semantik) |
+| `--expense` | `text-expense` | Chiqim rangi (qizil semantik) |
+| `--warning`, `--danger` | shu nomdan | Status ranglari |
+
+**Layout patternlari:**
+
+- **Auth/landing sahifalar** — split layout (`grid lg:grid-cols-2 min-h-screen`): chap = content, o'ng = decorative preview (mobile: faqat chap, `hidden lg:block`)
+- **Dashboard ichi** — `Layout.tsx` Sidebar + Topbar + `<Outlet />`; har bir sahifa `space-y-4` yoki `space-y-6` bilan vertical rhythm
+- **Page header** — `flex items-center justify-between` + `h1 text-xl font-medium` + chap/o'ngda action'lar
+- **Metric cards** — `MetricCard` komponenti (`shared/`), grid `md:grid-cols-3` yoki `md:grid-cols-4`
+- **Empty state** — `EmptyState` komponenti (`shared/`): icon + sarlavha + tavsif + action tugma(lar)
+
+**Komponent inventarizatsiyasi (shadcn/ui — `components/ui/`):**
+
+`button`, `input`, `label`, `badge`, `card`, `dialog`, `dropdown-menu`, `popover`, `select`, `tabs`, `skeleton`, `table`. Boshqalar `pnpm dlx shadcn@latest add <name>` bilan qo'shiladi.
+
+**Lucide-react ikonkalar** — barcha sahifalarda. Stroke ko'pincha `h-4 w-4` (kichik), `h-5 w-5` (sidebar), `h-10 w-10` (empty state).
+
+**Animatsiyalar (`globals.css`'da):**
+- `.tabular` — `font-variant-numeric: tabular-nums` (raqamli ustun)
+- Pulse va waveform animatsiyalari komponent ichida `<style>` inline yoki Tailwind orqali
+
+**Dizayn cheklovlari (yangi dizayn topshirilganda):**
+1. **Yangi npm package qo'shilmasin** — `lucide-react`, `shadcn/ui`, `tailwindcss`, `recharts`, `date-fns`, `react-i18next` mavjud. Boshqasi kerak bo'lsa avval taklif qil.
+2. **Theme tokenlarga tegmang** — `globals.css` va `tailwind.config.ts`'dagi `--primary`, `--background` va boshqalar barqaror. Yangi token kerak bo'lsa avval shu fayllarni o'zgartirish kerak.
+3. **Dark mode** — barcha ranglar token orqali bo'lsa avtomatik moslashadi. Faqat tashqi brendning hardkod ranglari (masalan Telegram'ning `#54a9eb`, `#17212B`) tema'ga bog'lanmaydi — bu istalgan.
+4. **i18n** — barcha matn `t('key')` orqali, har 3 tilda (`uz`, `ru`, `en`). Hardkod matn taqiqlangan.
+5. **Responsive** — `< lg` (1024px) da mobile-first ko'rinish bo'lishi kerak. Decorative o'ng panel yashiriladi (`hidden lg:block`).
+6. **Loyihaning serif/cream/teal estetikasini saqlang** — Login va Onboarding bu yo'nalishni belgilab berdi.
+
 ### Valyuta ko'rsatish
 
 `<CurrencyAmount amount={N} currency={c?} sign={'+'|'−'?} className={...} />` — `lib/format.ts` `formatMoney()`'ni o'raydi.
@@ -275,6 +338,25 @@ Backend route'lar (`voicecashly-server/`'dan):
 
 > Backend `class-validator` DTO'lar bilan validatsiya qiladi (`@IsDateString()`, `@IsNumber()` + `@Type(() => Number)`). Frontend `from`/`to`'ni doimo `new Date(...).toISOString()` formatda yuborishi kerak.
 
+### Type contract'lar — diqqat!
+
+Backend response shape va frontend `types/index.ts` o'rtasida hech qanday avtomatik sinxron yo'q (OpenAPI codegen ishlatilmaydi). Backend response'ini o'zgartirsa, frontend type'ini qo'lda yangilash kerak.
+
+**`/analytics/by-category` — flat shape qaytaradi** (nested `category` obyekt yo'q):
+
+```ts
+interface CategoryBreakdownItem {
+  categoryId: number;
+  nameUz: string;
+  nameRu: string;
+  nameEn: string;
+  color: string;
+  amount: number;  // backend "amount" deb yuboradi, "total" emas
+}
+```
+
+Agar Pie/Bar chart "Cannot read properties of undefined (reading 'nameUz')" tashlasa — backend yangi shape qaytarayotgan bo'lib, frontend hali eski tip kutyapti. Backend response'ini brauzer DevTools'da tekshiring va `types/index.ts`'ni moslang.
+
 ---
 
 ## Tipik nosozliklar (debug)
@@ -285,3 +367,6 @@ Backend route'lar (`voicecashly-server/`'dan):
 4. **JWT expired** — `isTokenValid()` `false` qaytaradi → ProtectedRoute /login'ga uloqtiradi. Yoki `exp` yo'q bo'lsa true qaytariladi va keyingi API call'ida 401 → logout. Backend JWT TTL `30d`.
 5. **Realtime sync ishlamayapti** — `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` env vars Vercel'da o'rnatilmagan. Supabase project'da Database → Replication → `Transaction`, `Budget` jadvallari uchun realtime yoqilgan bo'lishi kerak.
 6. **Bundle eski env'lar bilan deploy** — Vite env vars build-time'da inject qilinadi. Vercel'da env o'zgartirgandan keyin **Redeploy** kerak.
+7. **Network tab'ida bitta endpoint cheksiz qayta chaqirilmoqda** — odatda `useMemo` yo'qligidan. Agar `useQuery` chaqiruvi har render'da yangi `from`/`to` (`new Date().toISOString()`) ko'rsa, query key o'zgaradi → refetch → re-render → loop. Yechim: `const { from, to } = useMemo(() => periodRange(period), [period])`. Misol — `pages/Overview/index.tsx` va `pages/Analytics/index.tsx`.
+8. **`RangeError: Invalid time value` chart'larda** — date-fns `format()`'ga NaN/null Date berilgan. Odatda backend yomon `month`/`year` qaytargan. `lib/format.ts:getMonthName`'da guard mavjud (1-12 dan tashqari `'—'` qaytaradi), lekin asosiy sabab backend'da bo'ladi — uni tekshiring.
+9. **Chart "Cannot read properties of undefined"** — frontend/backend type contract sinxron emas. "Type contract'lar" bo'limiga qarang (yuqorida).
