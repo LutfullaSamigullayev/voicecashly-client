@@ -1,0 +1,247 @@
+import { useEffect, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Check, ChevronLeft, MoreVertical, Plus, Mic, Play } from 'lucide-react';
+
+const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME ?? 'VoiceCashlyBot';
+
+/**
+ * Telegram chat preview. Decorative — illustrates what a confirmed voice
+ * transaction looks like inside the bot. Telegram brand colors are hard-coded
+ * on purpose; they don't follow our theme.
+ */
+export function TelegramPreview() {
+  const { t } = useTranslation();
+
+  return (
+    <div
+      className="relative flex h-full items-center justify-center overflow-hidden p-12"
+      style={{
+        background:
+          'linear-gradient(135deg, hsl(var(--primary-hover)), hsl(var(--primary)))',
+      }}
+    >
+      {/* dot grid */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle at 1px 1px, #fff 1px, transparent 0)',
+          backgroundSize: '20px 20px',
+        }}
+      />
+
+      {/* phone */}
+      <div className="relative z-10 h-[640px] w-[320px] rounded-[40px] bg-black p-2 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5),0_30px_60px_-30px_rgba(0,0,0,0.4),inset_0_0_0_2px_rgba(255,255,255,0.06)]">
+        <div className="relative flex h-full w-full flex-col overflow-hidden rounded-[32px] bg-[#17212B]">
+          {/* notch */}
+          <div className="absolute left-1/2 top-2 z-10 h-[22px] w-[100px] -translate-x-1/2 rounded-full bg-black" />
+
+          {/* status bar */}
+          <div className="flex justify-between px-7 pb-1 pt-3 text-xs font-semibold text-white">
+            <span>14:22</span>
+            <span className="ml-12 tracking-widest">●●●●●</span>
+          </div>
+
+          {/* tg header */}
+          <div className="flex items-center gap-3 border-b border-white/5 bg-[#212D3B] px-4 py-2.5">
+            <ChevronLeft className="h-5 w-5 text-[#54a9eb]" />
+            <BotAvatar />
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-white">VoiceCashly</div>
+              <div className="text-[11px] text-[#7E8A99]">
+                {t('onboarding.bot_subtitle')}
+              </div>
+            </div>
+            <MoreVertical className="h-5 w-5 text-white" />
+          </div>
+
+          {/* chat body */}
+          <div
+            className="flex-1 overflow-hidden px-3.5 py-5"
+            style={{
+              backgroundImage:
+                'radial-gradient(circle at 20% 30%, rgba(84,169,235,0.05) 0%, transparent 50%)',
+            }}
+          >
+            <div className="mb-4 text-center text-[11px] text-[#7E8A99]">
+              {t('onboarding.chat_today')}
+            </div>
+
+            <TgBubble side="in" time="14:20">
+              {t('onboarding.chat_greeting')}
+            </TgBubble>
+
+            <VoiceBubble />
+
+            <TgBubble side="in" time="14:22">
+              <div>✓ {t('onboarding.chat_saved')}</div>
+              <div className="mt-2 rounded-[10px] border-l-[3px] border-[#54a9eb] bg-white/[0.06] px-3 py-2.5 text-[13px]">
+                <div className="mb-0.5 text-[11px] uppercase tracking-wide text-[#9DB2C7]">
+                  {t('onboarding.chat_expense')}
+                </div>
+                <div className="text-base font-semibold">35 000 so'm</div>
+                <div className="mt-0.5 text-xs text-[#9DB2C7]">
+                  🚕 {t('onboarding.chat_cat_transport')} ·{' '}
+                  {t('onboarding.chat_today')}
+                </div>
+              </div>
+            </TgBubble>
+
+            <TgBubble side="out" time="14:22" status>
+              {t('onboarding.chat_user_msg')}
+            </TgBubble>
+
+            <TgBubble side="in" time="14:22">
+              ✓{' '}
+              {t('onboarding.chat_saved_short', {
+                amount: '80 000',
+                cat: t('onboarding.chat_cat_food'),
+              })}
+            </TgBubble>
+
+            {/* typing */}
+            <div className="mt-1 flex justify-start">
+              <div className="flex gap-1 rounded-[14px] rounded-bl-[4px] bg-[#182533] px-3.5 py-2.5">
+                {[0, 1, 2].map((i) => (
+                  <span
+                    key={i}
+                    className="h-1.5 w-1.5 rounded-full bg-[#7E8A99]"
+                    style={{
+                      animation: `tg-dot 1.2s ${i * 0.2}s infinite ease-in-out`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* input bar */}
+          <div className="flex items-center gap-2 bg-[#212D3B] px-3 py-2.5">
+            <Plus className="h-5 w-5 text-[#7E8A99]" />
+            <div className="flex-1 rounded-full bg-[#182533] px-3.5 py-1.5 text-[13px] text-[#7E8A99]">
+              {t('onboarding.chat_input_placeholder')}
+            </div>
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-[#54a9eb]"
+              style={{ animation: 'tg-pulse 2s infinite' }}
+            >
+              <Mic className="h-[18px] w-[18px] text-white" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* footer caption */}
+      <div className="absolute bottom-6 left-0 right-0 text-center text-[11px] text-white/60">
+        @{BOT_USERNAME}
+      </div>
+
+      <style>{`
+        @keyframes tg-dot {
+          0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+          30% { transform: translateY(-3px); opacity: 1; }
+        }
+        @keyframes tg-pulse {
+          0% { box-shadow: 0 0 0 0 rgba(84,169,235,0.5); }
+          70% { box-shadow: 0 0 0 14px rgba(84,169,235,0); }
+          100% { box-shadow: 0 0 0 0 rgba(84,169,235,0); }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+function BotAvatar() {
+  return (
+    <svg width="36" height="36" viewBox="0 0 64 64" fill="none">
+      <circle cx="32" cy="32" r="32" fill="hsl(var(--primary))" />
+      <path
+        d="M32 18a4 4 0 0 0-4 4v10a4 4 0 0 0 8 0V22a4 4 0 0 0-4-4z"
+        fill="#fff"
+      />
+      <path
+        d="M22 32a10 10 0 0 0 20 0M32 42v6M26 48h12"
+        stroke="#fff"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function TgBubble({
+  side,
+  children,
+  time,
+  status,
+}: {
+  side: 'in' | 'out';
+  children: ReactNode;
+  time: string;
+  status?: boolean;
+}) {
+  const isOut = side === 'out';
+  return (
+    <div className={`mb-1.5 flex ${isOut ? 'justify-end' : 'justify-start'}`}>
+      <div
+        className={`relative max-w-[78%] rounded-[14px] px-3 py-2 text-sm leading-snug text-white ${
+          isOut
+            ? 'rounded-br-[4px] bg-[#2B5278]'
+            : 'rounded-bl-[4px] bg-[#182533]'
+        }`}
+      >
+        {children}
+        <div className="mt-1 flex items-center justify-end gap-1 text-[11px] text-white/55">
+          {time}
+          {status && (
+            <Check className="h-3.5 w-3.5" strokeWidth={2} color="#54a9eb" />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VoiceBubble() {
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setProgress((p) => (p + 0.5) % 100), 80);
+    return () => clearInterval(id);
+  }, []);
+  const bars = 36;
+
+  return (
+    <div className="mb-1.5 flex justify-end">
+      <div className="flex min-w-[260px] items-center gap-2.5 rounded-[14px] rounded-br-[4px] bg-[#2B5278] px-3 py-2.5">
+        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white text-[#2B5278]">
+          <Play className="h-3.5 w-3.5 fill-current" />
+        </div>
+        <div className="flex h-6 flex-1 items-center gap-0.5">
+          {Array.from({ length: bars }).map((_, i) => {
+            const env = 0.4 + Math.sin((i / bars) * Math.PI) * 0.6;
+            const played = (i / bars) * 100 < progress;
+            return (
+              <span
+                key={i}
+                className="rounded-sm"
+                style={{
+                  width: 2.5,
+                  height: env * 22,
+                  background: played ? '#fff' : 'rgba(255,255,255,0.35)',
+                }}
+              />
+            );
+          })}
+        </div>
+        <div className="flex flex-col items-end gap-0.5">
+          <span className="text-[11px] text-white/70">0:04</span>
+          <div className="flex items-center gap-0.5">
+            <span className="text-[11px] text-white/55">14:22</span>
+            <Check className="h-3 w-3" strokeWidth={2} color="#54a9eb" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

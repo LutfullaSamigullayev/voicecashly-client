@@ -111,9 +111,11 @@ export interface MonthlyPoint {
 
 export interface CategoryBreakdownItem {
   categoryId: number;
-  category: Category;
-  total: number;
-  count: number;
+  nameUz: string;
+  nameRu: string;
+  nameEn: string;
+  color: string;
+  amount: number;
 }
 
 export interface Budget {

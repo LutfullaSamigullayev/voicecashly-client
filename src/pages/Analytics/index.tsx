@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Area,
@@ -40,7 +40,7 @@ export default function AnalyticsPage() {
   const [period, setPeriod] = useState<Period>('month');
   const active = useActiveWorkspace();
   const wsId = active?.workspaceId ?? null;
-  const range = periodRange(period);
+  const range = useMemo(() => periodRange(period), [period]);
 
   const { data: monthly } = useMonthlyAnalytics(wsId, 6);
   const { data: byCategoryExpense } = useByCategoryAnalytics(wsId, 'EXPENSE', range.from, range.to);
@@ -54,13 +54,13 @@ export default function AnalyticsPage() {
     summary && summary.income > 0
       ? ((summary.net / summary.income) * 100).toFixed(1) + '%'
       : '—';
-  const topExpense = (byCategoryExpense ?? []).sort((a, b) => b.total - a.total)[0];
+  const topExpense = (byCategoryExpense ?? []).slice().sort((a, b) => b.amount - a.amount)[0];
   const topExpenseName = topExpense
     ? lang === 'uz'
-      ? topExpense.category.nameUz
+      ? topExpense.nameUz
       : lang === 'ru'
-        ? topExpense.category.nameRu
-        : topExpense.category.nameEn
+        ? topExpense.nameRu
+        : topExpense.nameEn
     : '—';
 
   const trendData = (monthly ?? []).map((d) => ({
@@ -95,7 +95,7 @@ export default function AnalyticsPage() {
         <ComparisonCard
           label={t('analytics.top_expense_category')}
           value={topExpenseName}
-          hint={topExpense ? formatMoney(topExpense.total, 'UZS', lang) : undefined}
+          hint={topExpense ? formatMoney(topExpense.amount, 'UZS', lang) : undefined}
           tone="expense"
         />
         <ComparisonCard label={t('analytics.profit_margin')} value={profitMargin} />
@@ -169,13 +169,13 @@ export default function AnalyticsPage() {
                 <li key={d.categoryId} className="flex justify-between text-xs">
                   <span>
                     {lang === 'uz'
-                      ? d.category.nameUz
+                      ? d.nameUz
                       : lang === 'ru'
-                        ? d.category.nameRu
-                        : d.category.nameEn}
+                        ? d.nameRu
+                        : d.nameEn}
                   </span>
                   <span className="tabular text-muted-foreground">
-                    {Math.round(d.total).toLocaleString()}
+                    {Math.round(d.amount).toLocaleString()}
                   </span>
                 </li>
               ))}
@@ -196,13 +196,13 @@ export default function AnalyticsPage() {
                 <li key={d.categoryId} className="flex justify-between text-xs">
                   <span>
                     {lang === 'uz'
-                      ? d.category.nameUz
+                      ? d.nameUz
                       : lang === 'ru'
-                        ? d.category.nameRu
-                        : d.category.nameEn}
+                        ? d.nameRu
+                        : d.nameEn}
                   </span>
                   <span className="tabular text-muted-foreground">
-                    {Math.round(d.total).toLocaleString()}
+                    {Math.round(d.amount).toLocaleString()}
                   </span>
                 </li>
               ))}

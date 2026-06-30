@@ -21,22 +21,17 @@ export function TopCategoriesList({ title, data }: Props) {
         <ul className="space-y-3">
           {data.slice(0, 7).map((d) => {
             const name =
-              lang === 'uz'
-                ? d.category.nameUz
-                : lang === 'ru'
-                  ? d.category.nameRu
-                  : d.category.nameEn;
+              lang === 'uz' ? d.nameUz : lang === 'ru' ? d.nameRu : d.nameEn;
             return (
               <li key={d.categoryId} className="flex items-center gap-3">
                 <span
                   className="h-7 w-7 flex-shrink-0 rounded-md"
-                  style={{ background: d.category.color }}
+                  style={{ background: d.color }}
                 />
                 <div className="flex-1 truncate">
                   <div className="truncate text-sm">{name}</div>
-                  <div className="text-xs text-muted-foreground">{d.count}</div>
                 </div>
-                <CurrencyAmount amount={d.total} className="text-sm" />
+                <CurrencyAmount amount={d.amount} className="text-sm" />
               </li>
             );
           })}
