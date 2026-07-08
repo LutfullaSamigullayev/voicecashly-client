@@ -152,7 +152,8 @@
     "delete_workspace": "Workspace'ni o'chirish",
     "delete_zone": "Xavfli zona",
     "no_members": "Hali a'zo yo'q. Birinchi a'zoni taklif qiling.",
-    "personal_no_team": "Bu shaxsiy workspace. Jamoa a'zolari yo'q."
+    "personal_no_team": "Bu shaxsiy workspace. Jamoa a'zolari yo'q.",
+    "delete_confirm": "Workspace oʼchirilsinmi?"
   },
   "settings": {
     "title": "Sozlamalar",
