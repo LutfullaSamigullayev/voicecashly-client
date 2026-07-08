@@ -47,3 +47,14 @@ export function useInviteCode(id: number | null) {
     enabled: !!id,
   });
 }
+
+export function useRenameWorkspace() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { id: number; name: string }) =>
+      workspacesService.rename(input.id, input.name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+    },
+  });
+}
