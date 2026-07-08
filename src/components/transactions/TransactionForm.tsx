@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { format } from 'date-fns';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -47,8 +48,9 @@ export function TransactionForm({ workspaceId, initial, onSubmit, isPending }: P
         ? initial?.noteRu
         : initial?.noteEn) ?? '',
   );
+  // datetime-local lokal vaqt kutadi — toISOString() UTC bo'lib soatni suradi
   const [date, setDate] = useState<string>(
-    initial?.date ? new Date(initial.date).toISOString().slice(0, 16) : '',
+    initial?.date ? format(new Date(initial.date), "yyyy-MM-dd'T'HH:mm") : '',
   );
 
   useEffect(() => {
