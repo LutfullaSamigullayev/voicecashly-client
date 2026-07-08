@@ -58,3 +58,16 @@ export function useRenameWorkspace() {
     },
   });
 }
+
+export function useDeleteWorkspace() {
+  const queryClient = useQueryClient();
+  const { reset } = useWorkspaceStore();
+  return useMutation({
+    mutationFn: (id: number) => workspacesService.remove(id),
+    onSuccess: () => {
+      // Faol workspace o'chdi — Layout memberships qayta yuklangach birinchisini tanlaydi
+      reset();
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] });
+    },
+  });
+}
