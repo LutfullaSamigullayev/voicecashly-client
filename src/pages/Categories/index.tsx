@@ -63,7 +63,7 @@ export default function CategoriesPage() {
   const progressMap = useMemo(() => {
     const map = new Map<number, { budget: number; spent: number }>();
     (budgetProgress ?? []).forEach((p) => {
-      map.set(p.categoryId, { budget: p.budget, spent: p.spent });
+      map.set(p.budget.categoryId, { budget: p.limit, spent: p.spent });
     });
     return map;
   }, [budgetProgress]);
