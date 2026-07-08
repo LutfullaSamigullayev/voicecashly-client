@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Send, Check, Mic } from 'lucide-react';
+import { Send, Check, Mic, Loader2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useCreateWorkspace } from '@/hooks/useWorkspaces';
 import { VoiceWaveform } from './VoiceWaveform';
 import { TelegramPreview } from './TelegramPreview';
 
@@ -13,6 +14,15 @@ type Step = { title: string; desc: string; state: StepState };
 export default function OnboardingPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const createWs = useCreateWorkspace();
+
+  // Botga o'tmasdan ham davom etish mumkin — shaxsiy workspace shu yerdan yaratiladi
+  const handleCreatePersonal = () => {
+    createWs.mutate(
+      { name: '', type: 'personal' },
+      { onSuccess: () => navigate('/', { replace: true }) },
+    );
+  };
 
   const steps: Step[] = [
     {
@@ -141,8 +151,19 @@ export default function OnboardingPage() {
               {t('onboarding.open_telegram')}
             </a>
           </Button>
-          <Button variant="outline" size="lg" onClick={() => navigate('/')}>
-            {t('onboarding.later')}
+          <Button
+            variant="outline"
+            size="lg"
+            className="gap-2.5"
+            onClick={handleCreatePersonal}
+            disabled={createWs.isPending}
+          >
+            {createWs.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Plus className="h-4 w-4" />
+            )}
+            {t('workspace.create_personal')}
           </Button>
         </div>
       </div>
