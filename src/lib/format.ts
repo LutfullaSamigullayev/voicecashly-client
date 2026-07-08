@@ -41,7 +41,11 @@ export function formatPercent(n: number): string {
   return `${sign}${n.toFixed(1)}%`;
 }
 
-export function getMonthName(month: number, lang: Lang = 'uz'): string {
-  if (!Number.isInteger(month) || month < 1 || month > 12) return '—';
-  return format(new Date(2000, month - 1, 1), 'MMMM', { locale: localeMap[lang] });
+// month: 1-12 raqami yoki backend'dan keladigan "YYYY-MM" satri
+export function getMonthName(month: number | string, lang: Lang = 'uz'): string {
+  const m = typeof month === 'string'
+    ? Number(month.includes('-') ? month.split('-')[1] : month)
+    : month;
+  if (!Number.isInteger(m) || m < 1 || m > 12) return '—';
+  return format(new Date(2000, m - 1, 1), 'MMMM', { locale: localeMap[lang] });
 }
