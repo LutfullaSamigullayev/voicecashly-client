@@ -152,7 +152,8 @@
     "delete_workspace": "Удалить workspace",
     "delete_zone": "Опасная зона",
     "no_members": "Пока нет участников. Пригласите первого.",
-    "personal_no_team": "Это личный workspace. Участников нет."
+    "personal_no_team": "Это личный workspace. Участников нет.",
+    "delete_confirm": "Удалить workspace?"
   },
   "settings": {
     "title": "Настройки",
