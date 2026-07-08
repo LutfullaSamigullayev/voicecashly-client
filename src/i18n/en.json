@@ -152,7 +152,8 @@
     "delete_workspace": "Delete workspace",
     "delete_zone": "Danger zone",
     "no_members": "No members yet. Invite the first one.",
-    "personal_no_team": "This is a personal workspace. No team members."
+    "personal_no_team": "This is a personal workspace. No team members.",
+    "delete_confirm": "Delete workspace?"
   },
   "settings": {
     "title": "Settings",
