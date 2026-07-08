@@ -49,8 +49,13 @@ export default function OverviewPage() {
   const { data: txList, isLoading: txLoading } = useTransactions(
     wsId ? { workspaceId: wsId, limit: 5, page: 1 } : null,
   );
-  const { data: monthly } = useMonthlyAnalytics(wsId, 8);
-  const { data: byCategory } = useByCategoryAnalytics(wsId, 'EXPENSE', from, to);
+  const { data: monthly, isLoading: monthlyLoading } = useMonthlyAnalytics(wsId, 8);
+  const { data: byCategory, isLoading: byCatLoading } = useByCategoryAnalytics(
+    wsId,
+    'EXPENSE',
+    from,
+    to,
+  );
 
   if (!sumLoading && txList && txList.total === 0) {
     return (
@@ -126,16 +131,25 @@ export default function OverviewPage() {
 
       <div className="grid gap-3 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          {monthly && monthly.length > 0 ? (
-            <MonthlyTrendChart data={monthly} />
-          ) : (
+          {monthlyLoading ? (
             <Skeleton className="h-72" />
+          ) : (
+            <MonthlyTrendChart data={monthly ?? []} />
           )}
         </div>
-        {byCategory && byCategory.length > 0 ? (
+        {byCatLoading ? (
+          <Skeleton className="h-72" />
+        ) : byCategory && byCategory.length > 0 ? (
           <CategoryBreakdownChart data={byCategory} />
         ) : (
-          <Skeleton className="h-72" />
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('overview.by_category')}</CardTitle>
+            </CardHeader>
+            <CardContent className="flex h-72 items-center justify-center text-sm text-muted-foreground">
+              {t('empty.no_analytics')}
+            </CardContent>
+          </Card>
         )}
       </div>
 
