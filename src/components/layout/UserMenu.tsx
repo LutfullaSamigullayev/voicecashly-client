@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { LogOut, Settings as SettingsIcon, User as UserIcon, Repeat } from 'lucide-react';
+import { LogOut, Settings as SettingsIcon, User as UserIcon } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,10 +51,6 @@ export function UserMenu() {
               <SettingsIcon className="h-3.5 w-3.5" />
               {t('user_menu.settings')}
             </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Repeat className="h-3.5 w-3.5" />
-            {t('user_menu.switch_ws')}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
