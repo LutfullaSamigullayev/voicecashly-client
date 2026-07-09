@@ -20,15 +20,23 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { EmptyState } from '@/components/shared/EmptyState';
-import { useActiveWorkspace, useInviteCode, useWorkspaceDetail } from '@/hooks/useWorkspaces';
+import { ConfirmDialog } from '@/components/shared/ConfirmDialog';
+import {
+  useActiveWorkspace,
+  useDeleteWorkspace,
+  useInviteCode,
+  useWorkspaceDetail,
+} from '@/hooks/useWorkspaces';
 import { formatDate } from '@/lib/format';
 import type { Lang } from '@/types';
+import { useNavigate } from 'react-router-dom';
 
 const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME ?? 'VoiceCashlyBot';
 
 export default function TeamPage() {
   const { t, i18n } = useTranslation();
   const lang = (i18n.language?.slice(0, 2) ?? 'uz') as Lang;
+  const navigate = useNavigate();
   const active = useActiveWorkspace();
   const wsId = active?.workspaceId ?? null;
   const isOwner = active?.role === 'OWNER';
@@ -37,6 +45,8 @@ export default function TeamPage() {
   const { data: ws } = useWorkspaceDetail(wsId);
   const { data: inviteCode } = useInviteCode(isOwner && !isPersonal ? wsId : null);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const deleteWs = useDeleteWorkspace();
 
   if (isPersonal) {
     return <EmptyState title={t('team.personal_no_team')} />;
@@ -115,10 +125,25 @@ export default function TeamPage() {
             <CardTitle className="text-destructive">{t('team.delete_zone')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <Button variant="destructive">{t('team.delete_workspace')}</Button>
+            <Button variant="destructive" onClick={() => setDeleteOpen(true)}>
+              {t('team.delete_workspace')}
+            </Button>
           </CardContent>
         </Card>
       )}
+
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={t('team.delete_confirm')}
+        description={t('settings.ws_delete_warn')}
+        destructive
+        onConfirm={() => {
+          if (!wsId) return;
+          deleteWs.mutate(wsId, { onSuccess: () => navigate('/') });
+        }}
+        confirmLabel={t('common.delete')}
+      />
 
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
         <DialogContent>
