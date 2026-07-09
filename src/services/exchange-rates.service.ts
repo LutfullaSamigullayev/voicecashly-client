@@ -2,8 +2,9 @@ import { api } from './api';
 import type { ExchangeRate } from '@/types';
 
 export const exchangeRatesService = {
-  latest: async (): Promise<ExchangeRate[]> => {
-    const res = await api.get<ExchangeRate[]>('/exchange-rates/latest');
+  // Backend bitta eng so'nggi kurs yozuvini (yoki null) qaytaradi
+  latest: async (): Promise<ExchangeRate | null> => {
+    const res = await api.get<ExchangeRate | null>('/exchange-rates/latest');
     return res.data;
   },
 };
