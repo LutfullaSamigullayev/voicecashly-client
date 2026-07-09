@@ -102,11 +102,12 @@ export interface Summary {
   net: number;
 }
 
+// Backend "month"ni "YYYY-MM" satri sifatida yuboradi (analytics.service.ts)
 export interface MonthlyPoint {
-  month: number;
-  year: number;
+  month: string;
   income: number;
   expense: number;
+  net: number;
 }
 
 export interface CategoryBreakdownItem {
@@ -128,12 +129,14 @@ export interface Budget {
   year: number;
 }
 
+// Backend shape (budgets.service.ts getBudgetProgress):
+// budget — Budget obyekti (category include bilan), limit — raqamli chegara
 export interface BudgetProgress {
-  categoryId: number;
-  category: Category;
-  budget: number;
+  budget: Budget & { category: Category };
   spent: number;
+  limit: number;
   percent: number;
+  status: 'ok' | 'warning' | 'exceeded';
 }
 
 export interface ExchangeRate {
