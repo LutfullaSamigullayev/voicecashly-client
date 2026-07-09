@@ -22,4 +22,11 @@ export const workspacesService = {
     const res = await api.get<{ code: string }>(`/workspaces/${id}/invite`);
     return res.data.code;
   },
+  rename: async (id: number, name: string): Promise<Workspace> => {
+    const res = await api.patch<Workspace>(`/workspaces/${id}`, { name });
+    return res.data;
+  },
+  remove: async (id: number): Promise<void> => {
+    await api.delete(`/workspaces/${id}`);
+  },
 };
