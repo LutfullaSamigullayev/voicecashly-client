@@ -65,7 +65,7 @@ src/
 ├── services/                   # Backend bilan ulanish qatlami (axios)
 │   ├── api.ts                  # axios instance + interceptors (Authorization, X-Workspace-Id, 401 logout)
 │   ├── auth.service.ts         # /auth/bot/start, /auth/bot/check, /auth/me
-│   ├── workspaces.service.ts   # /workspaces/me, /workspaces, /workspaces/:id/invite
+│   ├── workspaces.service.ts   # /workspaces/me, /workspaces (create/rename/delete), /workspaces/:id/invite
 │   ├── transactions.service.ts # /transactions (CRUD), /summary, /export
 │   ├── categories.service.ts   # /categories (CRUD)
 │   ├── analytics.service.ts    # /analytics/monthly, /analytics/by-category
@@ -79,7 +79,7 @@ src/
 │   └── useUiStore.ts           # sidebarCollapsed, theme ('light'|'dark')
 ├── hooks/                      # TanStack Query wrappers
 │   ├── useAuth.ts              # useTelegramLogin, useMe, useLogout
-│   ├── useWorkspaces.ts        # useMyWorkspaces, useActiveWorkspace, useCreateWorkspace, useWorkspaceDetail, useInviteCode
+│   ├── useWorkspaces.ts        # useMyWorkspaces, useActiveWorkspace, useCreateWorkspace, useWorkspaceDetail, useInviteCode, useRenameWorkspace, useDeleteWorkspace
 │   ├── useTransactions.ts      # useTransactions, useSummary, useCreate/Update/DeleteTransaction
 │   ├── useCategories.ts        # useCategories, useCreate/Update/DeleteCategory
 │   ├── useAnalytics.ts         # useMonthlyAnalytics, useByCategoryAnalytics
@@ -102,15 +102,15 @@ src/
 └── pages/
     ├── Login/index.tsx                  # Telegram bot orqali login — "conversation split" dizayni
     ├── Onboarding/
-    │   ├── index.tsx                    # Yangi user uchun bot'ga yo'naltirish (Login bilan bir xil layout)
+    │   ├── index.tsx                    # Yangi user: bot'ga yo'naltirish YOKI shu yerdan shaxsiy workspace yaratish (useCreateWorkspace)
     │   ├── VoiceWaveform.tsx            # Animatsiyalangan ovoz to'lqini (envelope + dual-frequency wobble)
     │   └── TelegramPreview.tsx          # Telefon ramkada Telegram chat preview (decorative)
     ├── Overview/index.tsx       # Bosh sahifa — metrics, charts, recent transactions, QuickAdd
     ├── Transactions/index.tsx   # CRUD + filtrlar + CSV export
     ├── Analytics/index.tsx      # Monthly trend + category breakdown
     ├── Categories/index.tsx     # CRUD + per-category budgets
-    ├── Team/index.tsx           # Workspace a'zolari, invite code (faqat OWNER ko'radi)
-    ├── Settings/index.tsx       # Til, valyuta, timezone, notifikatsiyalar
+    ├── Team/index.tsx           # Workspace a'zolari, invite code (faqat OWNER), danger zone: workspace o'chirish
+    ├── Settings/index.tsx       # Til, valyuta; workspace tab: rename (OWNER/ADMIN) + delete (OWNER)
     └── NotFound/index.tsx       # 404
 ```
 
@@ -143,7 +143,8 @@ LoginPage
        GET /auth/bot/check?token=... → { status: 'pending'|'confirmed'|'expired', jwt?, user? }
   → Foydalanuvchi Telegram'da botda "Tasdiqlash" tugmasini bosadi
   → Keyingi pollda status='confirmed' kelganda:
-       login(jwt, user) → setActive(user.workspaces[0].workspaceId, role) → navigate('/')
+       login(jwt, user) → setActive(activeWorkspaceId ?? workspaces[0]) → navigate('/')
+       (backend check javobida activeWorkspaceId — oxirgi tranzaksiya qilingan workspace)
 ```
 
 **UI:** Login sahifasi "conversation split" dizayni ishlatadi (`/login` route):
@@ -292,10 +293,10 @@ UI ba'zi tugmalarni rolga qarab ko'rsatadi:
 | Byudjet o'rnatish | ✅ | ✅ | ❌ |
 | Team sahifasini ko'rish | ✅ | ✅ | ✅ |
 | Invite link olish | ✅ | ❌ | ❌ |
-| Workspace nomini o'zgartirish | ✅ | ✅ | ❌ |
-| Workspace o'chirish | ✅ | ❌ | ❌ |
+| Workspace nomini o'zgartirish (Settings) | ✅ | ✅ | ❌ |
+| Workspace o'chirish (Settings/Team) | ✅ | ❌ | ❌ |
 
-Lekin asosiy guard backend tomonida — frontend faqat UX uchun yashiradi.
+Asosiy guard backend tomonida (`WorkspaceMemberGuard` + service tekshiruvlari) — frontend UX uchun yashiradi, backend esa 403 bilan rad etadi.
 
 ---
 
@@ -329,6 +330,7 @@ Backend route'lar (`voicecashly-server/`'dan):
 | `GET /settings` · `PATCH /settings` | `settingsService` · `useSettings` |
 | `GET /workspaces/me` | `workspacesService.myWorkspaces` · `useMyWorkspaces` |
 | `POST /workspaces` · `POST /workspaces/join` · `GET /workspaces/:id` · `GET /workspaces/:id/invite` | `workspacesService` |
+| `PATCH /workspaces/:id` (rename) · `DELETE /workspaces/:id` | `workspacesService.rename/remove` · `useRenameWorkspace`/`useDeleteWorkspace` (Settings + Team sahifalari) |
 | `GET /transactions?workspaceId=` · `GET /transactions/summary` · `GET /transactions/export` | `transactionsService` · `useTransactions`/`useSummary` |
 | `POST/PATCH/DELETE /transactions[/:id]` | `transactionsService` mutations |
 | `GET /categories?workspaceId=` · CRUD | `categoriesService` · `useCategories` |
@@ -338,32 +340,59 @@ Backend route'lar (`voicecashly-server/`'dan):
 
 > Backend `class-validator` DTO'lar bilan validatsiya qiladi (`@IsDateString()`, `@IsNumber()` + `@Type(() => Number)`). Frontend `from`/`to`'ni doimo `new Date(...).toISOString()` formatda yuborishi kerak.
 
+> **Avtorizatsiya:** `workspaceId` qabul qiladigan barcha endpointlarda backend a'zolikni tekshiradi (`WorkspaceMemberGuard`) — foydalanuvchi a'zo bo'lmagan workspaceId bilan so'rov **403** qaytaradi (interceptor `no_permission` toast ko'rsatadi). Kategoriya yaratish/tahrirlash va byudjet o'rnatish REST'da OWNER/ADMIN talab qiladi — MEMBER uchun UI tugmalarini yashirish shunchaki UX emas, backend ham rad etadi.
+
 ### Type contract'lar — diqqat!
 
-Backend response shape va frontend `types/index.ts` o'rtasida hech qanday avtomatik sinxron yo'q (OpenAPI codegen ishlatilmaydi). Backend response'ini o'zgartirsa, frontend type'ini qo'lda yangilash kerak.
+Backend response shape va frontend `types/index.ts` o'rtasida hech qanday avtomatik sinxron yo'q (OpenAPI codegen ishlatilmaydi). Backend response'ini o'zgartirsa, frontend type'ini qo'lda yangilash kerak. Hozirgi kelishilgan shakllar:
 
-**`/analytics/by-category` — flat shape qaytaradi** (nested `category` obyekt yo'q):
+**`/analytics/by-category` — flat shape** (nested `category` obyekt yo'q):
 
 ```ts
 interface CategoryBreakdownItem {
   categoryId: number;
-  nameUz: string;
-  nameRu: string;
-  nameEn: string;
+  nameUz: string; nameRu: string; nameEn: string;
   color: string;
   amount: number;  // backend "amount" deb yuboradi, "total" emas
 }
 ```
 
-Agar Pie/Bar chart "Cannot read properties of undefined (reading 'nameUz')" tashlasa — backend yangi shape qaytarayotgan bo'lib, frontend hali eski tip kutyapti. Backend response'ini brauzer DevTools'da tekshiring va `types/index.ts`'ni moslang.
+**`/analytics/monthly` — `month` "YYYY-MM" satri** (raqam emas, alohida `year` maydoni yo'q):
+
+```ts
+interface MonthlyPoint {
+  month: string;  // "2026-07"
+  income: number; expense: number; net: number;
+}
+```
+
+`lib/format.ts:getMonthName` ham raqam (1-12), ham "YYYY-MM" satrini qabul qiladi — chart label'lar shu orqali.
+
+**`/budgets/progress` — `budget` OBYEKT** (`category` include bilan), raqamli chegara `limit`da:
+
+```ts
+interface BudgetProgress {
+  budget: Budget & { category: Category };
+  spent: number;
+  limit: number;   // byudjet chegarasi (raqam)
+  percent: number;
+  status: 'ok' | 'warning' | 'exceeded';
+}
+```
+
+Kategoriya kartalarida mapping: `p.budget.categoryId` → `{ budget: p.limit, spent: p.spent }` (`pages/Categories/index.tsx`).
+
+**`/exchange-rates/latest`** — bitta `ExchangeRate` obyekti yoki `null` (massiv emas).
+
+Agar chart "Cannot read properties of undefined" tashlasa — shape'lar sinxron emas: backend response'ini brauzer DevTools'da tekshiring va `types/index.ts`'ni moslang.
 
 ---
 
 ## Tipik nosozliklar (debug)
 
 1. **"Internet aloqasi yo'q" toast** — axios `error.response` undefined. Sabablar: Render cold start (>60s timeout), CORS bloklangan, network down. Tekshiruv: brauzer DevTools Network → so'rov status. Backend `/health` endpoint'ini to'g'ridan-to'g'ri brauzerda oching.
-2. **Login bo'ldi, lekin `/`'da skeleton qotib qoldi** — `useActiveWorkspace()` `undefined` qaytaryapti. Sabablar: `useMyWorkspaces` empty array qaytardi (foydalanuvchi botda hech qachon workspace yaratmagan) yoki 401 kelyapti. `Layout.tsx` memberships uchun `length === 0` bo'lsa `/onboarding`'ga uloqtiradi.
-3. **Onboarding loop** — onboarding'da workspace yaratish tugmasi yo'q. Foydalanuvchi botda `/start` qilib workspace yaratishi kerak. Onboarding'dagi "Boshlash" tugmasi `/` ga olib boradi va u yana onboarding'ga qaytaradi cheksiz.
+2. **Login bo'ldi, lekin `/`'da skeleton qotib qoldi** — `useActiveWorkspace()` `undefined` qaytaryapti. Sabablar: `useMyWorkspaces` empty array qaytardi (workspace hali yaratilmagan) yoki 401 kelyapti. `Layout.tsx` memberships uchun `length === 0` bo'lsa `/onboarding`'ga uloqtiradi.
+3. **Onboarding'dan chiqish yo'llari** — "Telegram'ni ochish" (bot orqali yaratish) yoki "Shaxsiy hisob yaratish" tugmasi (`useCreateWorkspace` → `POST /workspaces` → `/`'ga navigate). Eski "keyinroq" tugmasi olib tashlangan — u workspace'siz `/`'ga olib borib cheksiz onboarding loop hosil qilardi.
 4. **JWT expired** — `isTokenValid()` `false` qaytaradi → ProtectedRoute /login'ga uloqtiradi. Yoki `exp` yo'q bo'lsa true qaytariladi va keyingi API call'ida 401 → logout. Backend JWT TTL `30d`.
 5. **Realtime sync ishlamayapti** — `VITE_SUPABASE_URL`/`VITE_SUPABASE_ANON_KEY` env vars Vercel'da o'rnatilmagan. Supabase project'da Database → Replication → `Transaction`, `Budget` jadvallari uchun realtime yoqilgan bo'lishi kerak.
 6. **Bundle eski env'lar bilan deploy** — Vite env vars build-time'da inject qilinadi. Vercel'da env o'zgartirgandan keyin **Redeploy** kerak.
